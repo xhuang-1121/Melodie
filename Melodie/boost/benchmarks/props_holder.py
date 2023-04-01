@@ -26,8 +26,8 @@ def atest2():
     s = 0
     a = A()
     t0 = time.time()
-    for i in range(times):
-        for j in range(length):
+    for _ in range(times):
+        for _ in range(length):
             a.a
             a.a = 123
     print("test2", time.time() - t0)

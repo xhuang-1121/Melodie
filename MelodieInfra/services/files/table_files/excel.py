@@ -68,20 +68,19 @@ class ExcelDataService:
         """
         _, ext = os.path.splitext(req.path)
         ext = ext[1:]
-        if ext in {"xls", "xlsx"}:
-            df = pd.DataFrame(req.data)
-            try:
-                if req.sheet is not None:
-                    em = ExcelManipulator(req.path)
-                    em.write_to_sheet(df, req.sheet)
-                else:
-                    df.to_excel(req.path, index=False)
-                return DataServiceStatus(status=DataServiceState.SUCCESS, msg='Succeeded saved table file!')
-            except BaseException as e:
-                return DataServiceStatus(status=DataServiceState.ERROR, msg=f"{e}")
-        else:
+        if ext not in {"xls", "xlsx"}:
             return DataServiceStatus(status=DataServiceState.ERROR,
                                      msg=f"Extension name {ext} unsupported for excel files!")
+        df = pd.DataFrame(req.data)
+        try:
+            if req.sheet is not None:
+                em = ExcelManipulator(req.path)
+                em.write_to_sheet(df, req.sheet)
+            else:
+                df.to_excel(req.path, index=False)
+            return DataServiceStatus(status=DataServiceState.SUCCESS, msg='Succeeded saved table file!')
+        except BaseException as e:
+            return DataServiceStatus(status=DataServiceState.ERROR, msg=f"{e}")
 
     @staticmethod
     def read_excel(req: ExcelReadSheetRequest) -> DataServiceStatus:
@@ -93,13 +92,12 @@ class ExcelDataService:
         """
         _, ext = os.path.splitext(req.path)
         ext = ext[1:]
-        if ext in {"xls", "xlsx"}:
-            em = ExcelManipulator(req.path)
-            sheets: List[str] = cast(Any, em.get_sheet_names())
-            currentSheet: str = sheets[0] if req.sheet is None else req.sheet
-            res = em.read_sheet(currentSheet)
-            resp = ExcelReadSheetResponse.create(df_to_json(res), currentSheet, sheets)
-            return DataServiceStatus(status=DataServiceState.SUCCESS, msg="Read excel file succeeded!", data=resp)
-        else:
+        if ext not in {"xls", "xlsx"}:
             return DataServiceStatus(status=DataServiceState.ERROR,
                                      msg=f"File extension {ext} unsupported for excel files!")
+        em = ExcelManipulator(req.path)
+        sheets: List[str] = cast(Any, em.get_sheet_names())
+        currentSheet: str = sheets[0] if req.sheet is None else req.sheet
+        res = em.read_sheet(currentSheet)
+        resp = ExcelReadSheetResponse.create(df_to_json(res), currentSheet, sheets)
+        return DataServiceStatus(status=DataServiceState.SUCCESS, msg="Read excel file succeeded!", data=resp)

@@ -36,7 +36,7 @@ class DFLoader(DataLoader):
 class MockTrainer(Trainer):
     def setup(self):
         self.add_agent_training_property(
-            "agent_list", ["param1", "param2"], lambda s: [i for i in range(10)]
+            "agent_list", ["param1", "param2"], lambda s: list(range(10))
         )
 
     def utility(self, agent: Agent) -> float:

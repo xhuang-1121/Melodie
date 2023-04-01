@@ -101,11 +101,7 @@ class Scenario(Element):
 
         :return: Dictionary `property_name->property_value`
         """
-        d = {}
-        for k in self.__dict__.keys():
-            v = self.__dict__[k]
-            d[k] = v
-        return d
+        return {k: self.__dict__[k] for k in self.__dict__.keys()}
 
     def to_json(self):
         """
@@ -113,11 +109,11 @@ class Scenario(Element):
 
         :return: Dictionary `property_name->property_value`, without non-serializable properties
         """
-        d = {}
-        for k in self.__dict__.keys():
-            if k not in {"manager"}:
-                d[k] = self.__dict__[k]
-        return d
+        return {
+            k: self.__dict__[k]
+            for k in self.__dict__.keys()
+            if k not in {"manager"}
+        }
 
     def get_parameters(self) -> List[BaseParameter]:
         """

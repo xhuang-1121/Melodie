@@ -120,9 +120,8 @@ def show_link(stackdepth=1):
     file = inspect.stack()[stackdepth].filename
     line = inspect.stack()[stackdepth].lineno
 
-    string = f'File "{file}", line {max(line, 1)}'.replace("\\", "/")
-    return string
+    return f'File "{file}", line {max(line, 1)}'.replace("\\", "/")
 
 
 def show_prettified_warning(warning: str):
-    ColorParseFSM().parse("WARNING: " + warning)
+    ColorParseFSM().parse(f"WARNING: {warning}")

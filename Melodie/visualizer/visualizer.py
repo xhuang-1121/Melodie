@@ -95,16 +95,15 @@ async def handler(ws: MelodieVisualizerProtocol, path):
             content = await asyncio.wait_for(ws.recv(), timeout=0.05)
             rec = json.loads(content)
             cmd = rec["cmd"]
-            data = rec["data"]
-            if 0 <= cmd <= 10:
-                try:
-                    visualize_condition_queue_main.put((cmd, data, ws), timeout=1)
-                except:
-                    import traceback
-
-                    traceback.print_exc()
-            else:
+            if not 0 <= cmd <= 10:
                 raise NotImplementedError(cmd)
+            data = rec["data"]
+            try:
+                visualize_condition_queue_main.put((cmd, data, ws), timeout=1)
+            except:
+                import traceback
+
+                traceback.print_exc()
         except (asyncio.TimeoutError, ConnectionRefusedError):
             pass
         except ConnectionClosedOK as e:
@@ -358,7 +357,7 @@ class BaseVisualizer:
         all_param_names = [os.path.splitext(filename)[0] for filename in
                            os.listdir(self.params_dir)]
         if params_set_name in all_param_names:
-            with open(os.path.join(self.params_dir, params_set_name + '.json'), encoding='utf8', errors='replace') as f:
+            with open(os.path.join(self.params_dir, f'{params_set_name}.json'), encoding='utf8', errors='replace') as f:
                 params_json = json.load(f)
                 self.params_manager.from_json(params_json)
                 print('params updated by paramset', params_set_name)
@@ -391,8 +390,6 @@ class BaseVisualizer:
                 assert isinstance(handled, bool)
                 if not handled:
                     return res
-                else:
-                    pass
             except queue.Empty:
                 pass
 
@@ -418,7 +415,7 @@ class BaseVisualizer:
             except Exception as e:
                 import traceback
                 traceback.print_exc()
-                self.send_notification("Parameter value error:" + str(e), "error")
+                self.send_notification(f"Parameter value error:{str(e)}", "error")
                 return True
         elif cmd_type == INIT_OPTIONS:
             self.send_chart_options()
@@ -503,13 +500,12 @@ class BaseVisualizer:
             flag, data, ws = self.get_in_queue()
             if flag == CURRENT_DATA:
                 self.send_current_data()
+            elif flag == STEP:
+                self.send_error("Model already finished, please reset the model.")
             else:
-                if flag == STEP:
-                    self.send_error(f"Model already finished, please reset the model.")
-                else:
-                    self.send_error(
-                        f"Invalid command flag {flag} for function 'finish'. "
-                    )
+                self.send_error(
+                    f"Invalid command flag {flag} for function 'finish'. "
+                )
 
 
 class Visualizer(BaseVisualizer):
@@ -558,10 +554,10 @@ class Visualizer(BaseVisualizer):
             attributes = ["id", "x", "y", "category"] + list(
                 first_agent.__dict__.keys()
             )
-            for agent in agent_list:
-                agents_vis_dicts.append(
-                    {"data": agent.to_dict(attributes), "style": agent.get_style()}
-                )
+            agents_vis_dicts.extend(
+                {"data": agent.to_dict(attributes), "style": agent.get_style()}
+                for agent in agent_list
+            )
         return {
             "name": "grid",
             "type": "grid",
@@ -603,7 +599,7 @@ class Visualizer(BaseVisualizer):
         from ..network import Network
 
         MelodieExceptions.Assertions.Type(
-            f'argument "component"', component, (Grid, Network)
+            'argument "component"', component, (Grid, Network)
         )
 
         chart_options = {
@@ -615,7 +611,7 @@ class Visualizer(BaseVisualizer):
             "yAxis": {"type": "category", "splitArea": {"show": True}},
             "visualMap": {
                 "type": "piecewise",
-                "categories": [i for i, color in color_categories.items()],
+                "categories": list(color_categories),
                 "calculable": True,
                 "orient": "horizontal",
                 "left": "center",
@@ -653,12 +649,10 @@ class Visualizer(BaseVisualizer):
                 visualizers.append(r)
             else:
                 raise NotImplementedError
-        data = {
+        return {
             "visualizers": visualizers,
             "plots": self.plot_charts.get_current_data(),
         }
-
-        return data
 
 
 class NetworkVisualizer(BaseVisualizer):
@@ -736,20 +730,20 @@ class NetworkVisualizer(BaseVisualizer):
             self.vertex_roles[node_name] = colormap
 
     def _format(self):
-        lst = []
-        for name, pos in self.vertex_positions.items():
-            lst.append(
-                {
-                    "name": name,
-                    "x": pos[0],
-                    "y": pos[1],
-                    "category": self.vertex_roles[name],
-                }
-            )
-        lst_edges = []
-        for edge, role in self.edge_roles.items():
-            lst_edges.append({"source": edge[0], "target": edge[1]})
-        data = {
+        lst = [
+            {
+                "name": name,
+                "x": pos[0],
+                "y": pos[1],
+                "category": self.vertex_roles[name],
+            }
+            for name, pos in self.vertex_positions.items()
+        ]
+        lst_edges = [
+            {"source": edge[0], "target": edge[1]}
+            for edge, role in self.edge_roles.items()
+        ]
+        return {
             "visualizer": {"series": [{"data": lst, "links": lst_edges}]},
             "plots": [
                 {
@@ -767,4 +761,3 @@ class NetworkVisualizer(BaseVisualizer):
                 for name in self.plot_charts.keys()
             ],
         }
-        return data

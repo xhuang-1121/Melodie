@@ -58,10 +58,9 @@ class Config:
     @staticmethod
     def from_dict(d: Dict[str, Any]):
 
-        c = Config(
+        return Config(
             d["project_name"],
             d["project_root"],
             d["input_folder"],
             d["output_folder"],
         )
-        return c

@@ -46,9 +46,7 @@ class CovidEnvironment(Environment):
                 agent.condition = 1
 
     def count(self, agent_list: "AgentList[CovidAgent]"):
-        s = 0
-        for agent in agent_list:
-            s += agent.condition
+        s = sum(agent.condition for agent in agent_list)
         self.accumulated_infection = s
 
 

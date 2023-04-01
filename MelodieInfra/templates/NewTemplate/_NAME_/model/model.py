@@ -10,6 +10,6 @@ class _ALIAS_Model(Model):
             self.environment = _ALIAS_Environment()
 
     def run(self):
-        for t in range(0, self.scenario.period_num):
+        for t in range(self.scenario.period_num):
             self.data_collector.collect(t)
         self.data_collector.save()

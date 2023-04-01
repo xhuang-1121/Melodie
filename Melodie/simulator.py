@@ -236,7 +236,7 @@ class Simulator(BaseModellingManager):
 
         self.pre_run()
         t1 = time.time()
-        for scenario_index, scenario in enumerate(self.scenarios):
+        for scenario in self.scenarios:
             for id_run in range(scenario.run_num):
                 self.run_model(
                     self.config, scenario, id_run, self.model_cls, visualizer=None
@@ -339,7 +339,7 @@ class Simulator(BaseModellingManager):
         pool = Pool(cores)
 
         parameters: List[Tuple] = []
-        for scenario_index, scenario in enumerate(self.scenarios):
+        for scenario in self.scenarios:
             for id_run in range(scenario.run_num):
                 params = (
                     self.config,

@@ -20,9 +20,6 @@ class PseudoAgent:
         rand = np.random.uniform(0, 1)
         if rand <= self.productivity:
             self.account += 1
-        else:
-            pass
-
         return None
 
     def demofunction2(self):
@@ -34,9 +31,6 @@ class PseudoAgent:
         rand = np.random.uniform(0, 1)
         if rand <= self.productivity:
             self.account, self.x = 1, 2
-        else:
-            pass
-
         return None
 
     def test_tuple_parse(self):
@@ -52,9 +46,6 @@ class PseudoAgent:
         w = {"a": 1, "b": 2, "c": 3}
         if rand <= self.productivity:
             self.account, self.x = 1, 2
-        else:
-            pass
-
         return y, z, w
 
     def test_enclosures(self):
@@ -71,9 +62,6 @@ class PseudoAgent:
         rand = f()
         if rand <= self.productivity:
             self.account, self.x = 1, 2
-        else:
-            pass
-
         return None
 
     def test_loops(self):

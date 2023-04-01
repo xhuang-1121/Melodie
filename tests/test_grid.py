@@ -69,9 +69,10 @@ def neighbors(grid: Grid):
     px, py = int(grid.width() / 2), int(grid.height() / 2)
     neighbor_ids = grid._get_neighbor_positions(px, py, 1)
 
-    neighbor_ids = set(
-        [(neighbor_ids[i][0], neighbor_ids[i][1]) for i in range(len(neighbor_ids))]
-    )
+    neighbor_ids = {
+        (neighbor_ids[i][0], neighbor_ids[i][1])
+        for i in range(len(neighbor_ids))
+    }
 
     assert len(list(neighbor_ids)) == 8
 

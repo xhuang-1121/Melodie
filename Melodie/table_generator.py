@@ -115,12 +115,12 @@ class DataFrameGenerator:
         :return:
         """
         data_list = []
-        for agent_id in range(0, self.num_generator(scenario)):
+        for agent_id in range(self.num_generator(scenario)):
             d = {"id_scenario": scenario.id, "id": agent_id}
             generated = self._row_generator(scenario)
             if isinstance(generated, dict):
-                d.update(generated)
-            elif not type(generated).__module__ == "__builtin__":
+                d |= generated
+            elif type(generated).__module__ != "__builtin__":
                 d.update(generated.__dict__)
             else:
                 raise TypeError(

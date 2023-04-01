@@ -127,12 +127,11 @@ class DataLoader:
         table: Optional[pd.DataFrame]
 
         MelodieExceptions.Data.TableNameInvalid(table_name)
-        if ext in {".xls", ".xlsx"}:
-            file_path_abs = os.path.join(self.config.input_folder, file_name)
-            table = pd.read_excel(file_path_abs)
-            df_info.check_column_names(list(table.columns))
-        else:
+        if ext not in {".xls", ".xlsx"}:
             raise NotImplemented(file_name)
+        file_path_abs = os.path.join(self.config.input_folder, file_name)
+        table = pd.read_excel(file_path_abs)
+        df_info.check_column_names(list(table.columns))
         if not self.as_sub_worker:
             DBConn.register_dtypes(table_name, data_types)
             create_db_conn(self.config).write_dataframe(
@@ -154,14 +153,13 @@ class DataLoader:
         :return: None
         """
         _, ext = os.path.splitext(matrix_info.file_name)
-        if ext in {".xls", ".xlsx"}:
-            file_path_abs = os.path.join(
-                self.config.input_folder, matrix_info.file_name
-            )
-            table: pd.DataFrame = pd.read_excel(file_path_abs, header=None)
-            array = table.to_numpy(matrix_info.dtype, copy=True)
-        else:
+        if ext not in {".xls", ".xlsx"}:
             raise NotImplementedError(f"Cannot load file to matrix {ext}")
+        file_path_abs = os.path.join(
+            self.config.input_folder, matrix_info.file_name
+        )
+        table: pd.DataFrame = pd.read_excel(file_path_abs, header=None)
+        array = table.to_numpy(matrix_info.dtype, copy=True)
         self.registered_matrices[matrix_info.mat_name] = array
 
     def dataframe_generator(
@@ -190,7 +188,7 @@ class DataLoader:
         if scenarios_dataframe is None:
             MelodieExceptions.Data.TableNotFound(df_name, self.registered_dataframes)
 
-        cols = [col for col in scenarios_dataframe.columns]
+        cols = list(scenarios_dataframe.columns)
         scenarios: List[Scenario] = []
         for i in range(scenarios_dataframe.shape[0]):
             scenario = self.scenario_cls()
@@ -199,12 +197,9 @@ class DataLoader:
 
             for col_name in cols:
                 value = scenarios_dataframe.loc[i, col_name]
-                if isinstance(value, str):
-                    scenario.__dict__[col_name] = value
-                else:
-                    scenario.__dict__[col_name] = value.item()
+                scenario.__dict__[col_name] = value if isinstance(value, str) else value.item()
             scenarios.append(scenario)
-        if len(scenarios) == 0:
+        if not scenarios:
             raise MelodieExceptions.Scenario.NoValidScenarioGenerated(scenarios)
         return scenarios
 

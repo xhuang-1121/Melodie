@@ -8,11 +8,11 @@ import sys
 
 
 def get_executable(venv_path: str) -> str:
-    if sys.platform.lower().find("windows") != -1:
-        executable = os.path.join(venv_path, "Scripts", "python.exe")
-    else:
-        executable = os.path.join(venv_path, "bin", "python")
-    return executable
+    return (
+        os.path.join(venv_path, "Scripts", "python.exe")
+        if sys.platform.lower().find("windows") != -1
+        else os.path.join(venv_path, "bin", "python")
+    )
 
 
 def venvpackup():

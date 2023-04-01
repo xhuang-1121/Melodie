@@ -10,7 +10,7 @@ class MelodieGA(GA):
     def run(self, max_iter=None):
         self.max_iter = max_iter or self.max_iter
         best = []
-        for i in range(self.max_iter):
+        for _ in range(self.max_iter):
             self.X = self.chrom2x(self.Chrom)
             self.Y = self.x2y()
             self.ranking()

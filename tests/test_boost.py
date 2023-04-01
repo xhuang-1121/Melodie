@@ -30,7 +30,7 @@ XM = 100
 YM = 100
 
 agents = [Agent]
-pure_py_lst = [[PurePyCell() for i in range(XM)] for j in range(YM)]
+pure_py_lst = [[PurePyCell() for _ in range(XM)] for _ in range(YM)]
 lst = pure_py_lst
 
 agent_manager = AgentList(

@@ -108,11 +108,10 @@ class TrainerAlgorithmMeta:
     def __setattr__(self, key, value):
         if (not hasattr(self, "_freeze")) or (not self._freeze):
             super().__setattr__(key, value)
+        elif key in self.__dict__:
+            super(TrainerAlgorithmMeta, self).__setattr__(key, value)
         else:
-            if key in self.__dict__:
-                super(TrainerAlgorithmMeta, self).__setattr__(key, value)
-            else:
-                raise MelodieExceptions.General.NoAttributeError(self, key)
+            raise MelodieExceptions.General.NoAttributeError(self, key)
 
 
 class GATrainerAlgorithmMeta(TrainerAlgorithmMeta):
@@ -347,7 +346,7 @@ class GATrainerAlgorithm:
             data = agent_data[container_name]
             for agent_container_data in data:
                 d = {}
-                d.update(meta_dict)
+                d |= meta_dict
                 d["agent_id"] = agent_container_data["agent_id"]
                 d.update(agent_container_data)
                 d.pop("target_function_value")
@@ -357,7 +356,7 @@ class GATrainerAlgorithm:
                 pd.DataFrame(agent_records[container_name]),
                 if_exists="append",
             )
-        env_record.update(meta_dict)
+        env_record |= meta_dict
         env_record.update(env_data)
 
         create_db_conn(self.manager.config).write_dataframe(
@@ -391,7 +390,7 @@ class GATrainerAlgorithm:
             for agent_id in self.agent_ids[container_name]:
                 agent_data = df.loc[df["agent_id"] == agent_id]
                 cov_records = {}
-                cov_records.update(meta_dict)
+                cov_records |= meta_dict
                 cov_records["agent_id"] = agent_id
                 for prop_name in self.recorded_agent_properties[container_name] + [
                     "utility"
@@ -409,7 +408,7 @@ class GATrainerAlgorithm:
                 if_exists="append",
             )
         env_record = {}
-        env_record.update(meta_dict)
+        env_record |= meta_dict
         for prop_name in self.recorded_env_properties:
             mean = env_df[prop_name].mean()
             cov = env_df[prop_name].std() / env_df[prop_name].mean()
@@ -604,9 +603,7 @@ class Trainer(BaseModellingManager):
         """
         assert self.algorithm_type in {"ga"}
 
-        trainer_scenario_cls: Optional[Union[Type[GATrainerParams]]] = None
-        if self.algorithm_type == "ga":
-            trainer_scenario_cls = GATrainerParams
+        trainer_scenario_cls = GATrainerParams if self.algorithm_type == "ga" else None
         assert trainer_scenario_cls is not None
         return trainer_scenario_cls
 

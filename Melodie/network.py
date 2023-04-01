@@ -130,10 +130,7 @@ class Network:
         self, agent_id: int, category: int
     ) -> List[Tuple[int, int]]:
         neighbor_ids = self.edges[(category, agent_id)]
-        if neighbor_ids is None:
-            return []
-        else:
-            return list(neighbor_ids.keys())
+        return [] if neighbor_ids is None else list(neighbor_ids.keys())
 
     def get_neighbors(self, agent: Agent):
         """
@@ -236,9 +233,7 @@ class Network:
         """
         assert isinstance(agent, NetworkAgent)
         targets = self.edges[(agent.category, agent.id)]
-        edges: List[Edge] = []
-        for target_node, edge in targets.items():
-            edges.append(edge)
+        edges: List[Edge] = [edge for target_node, edge in targets.items()]
         return edges
 
     def setup_agent_connections(

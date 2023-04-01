@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 def create_file_response(filepath: str):
     basename, ext = os.path.splitext(filepath)
     mime = mimetypes.types_map[ext]
-    logger.info('ext-mime' + f'{mime}')
+    logger.info(f'ext-mime{mime}')
     with open(filepath, 'rb') as f:
         content = f.read()
     return (http.HTTPStatus.OK, [("Access-Control-Allow-Origin", "*"), ('Content-Type', mime)],
@@ -47,5 +47,4 @@ class MelodieVisualizerProtocol(WebSocketServerProtocol):
         elif path.startswith("/action/"):
             action = path[len('/action/'):]
             return Action.dispatch(action)
-        ret = await super().process_request(path, request_headers)
-        return ret
+        return await super().process_request(path, request_headers)

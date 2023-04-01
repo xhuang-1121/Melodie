@@ -85,8 +85,7 @@ class Param(JSONBase):
 
         :return:
         """
-        d = super().to_json()
-        return d
+        return super().to_json()
 
     def to_value_json(self):
         """
@@ -292,9 +291,7 @@ class ArrayParam(Param):
 
         :return:
         """
-        items = []
-        for param in self._value:
-            items.append(param.to_json())
+        items = [param.to_json() for param in self._value]
         d = super().to_json()
         d['children'] = items
         return d
@@ -405,7 +402,7 @@ class ParamsManager:
         """
         for param in params:
             assert isinstance(param, Param), param
-            abs_name = name_prefix + "." + param.name
+            abs_name = f"{name_prefix}.{param.name}"
             if isinstance(param, ArrayParam):
                 ParamsManager.for_each_param(param.children(), abs_name, callback)
             else:

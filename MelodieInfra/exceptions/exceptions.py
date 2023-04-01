@@ -154,18 +154,19 @@ class MelodieExceptions:
         def CannotMoveToNewStateError(
                 old_state, new_state, all_possible_new_states: set
         ):
-            if len(list(all_possible_new_states)) == 0:
-                return MelodieException(
-                    1102,
-                    f"Current state is {repr(old_state)}, on which the status could only move to"
-                    f" itself. However the new state was {repr(new_state)}",
-                )
-            else:
-                return MelodieException(
+            return (
+                MelodieException(
                     1102,
                     f"Current state is {repr(old_state)}, on which the status could only move to"
                     f" {all_possible_new_states}. However the new state was {repr(new_state)}",
                 )
+                if list(all_possible_new_states)
+                else MelodieException(
+                    1102,
+                    f"Current state is {repr(old_state)}, on which the status could only move to"
+                    f" itself. However the new state was {repr(new_state)}",
+                )
+            )
 
         @staticmethod
         def NotAStateAttributeError(agent_cls, state_attr: str):
@@ -404,7 +405,7 @@ class MelodieExceptions:
             """
             return MelodieException(
                 1509,
-                f"No dataframe loader defined for the Simulator/Calibrator/Trainer.",
+                "No dataframe loader defined for the Simulator/Calibrator/Trainer.",
             )
 
         @staticmethod
@@ -418,9 +419,11 @@ class MelodieExceptions:
             """
             return MelodieException(
                 1510,
-                f"Column name inconsistent: '{df_name}'\n"
-                + ("" if len(missing) == 0 else f"Missing columns: {missing}\n")
-                + ("" if len(undefined) == 0 else f"Undefined columns: {undefined}"),
+                (
+                    f"Column name inconsistent: '{df_name}'\n"
+                    + (f"Missing columns: {missing}\n" if missing else "")
+                )
+                + (f"Undefined columns: {undefined}" if undefined else ""),
             )
 
     class Tools:
@@ -439,8 +442,7 @@ class MelodieExceptions:
             """
             return MelodieException(
                 1601,
-                f"Connection to Melodie Studio was refused. It seems that Melodie studio is not "
-                f"started yet. Please start Melodie Studio.",
+                'Connection to Melodie Studio was refused. It seems that Melodie studio is not started yet. Please start Melodie Studio.',
             )
 
     class Visualizer:

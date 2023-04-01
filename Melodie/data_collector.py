@@ -129,10 +129,10 @@ class DataCollector:
 
         :return:
         """
-        containers = []
-        for container_name in self._agent_properties_to_collect.keys():
-            containers.append((container_name, getattr(self.model, container_name)))
-        return containers
+        return [
+            (container_name, getattr(self.model, container_name))
+            for container_name in self._agent_properties_to_collect.keys()
+        ]
 
     def collect_agent_properties(self, period: int, id_run: int, id_scenario: int):
         """
@@ -157,7 +157,7 @@ class DataCollector:
                     "period": period,
                     "id": agent_props_dict.pop("id"),
                 }
-                tmp_dic.update(agent_props_dict)
+                tmp_dic |= agent_props_dict
                 props_list.append(tmp_dic)
 
             if container_name not in self.agent_properties_dict:
@@ -194,7 +194,7 @@ class DataCollector:
             "id_run": self.model.run_id_in_scenario,
             "period": period,
         }
-        env_dic.update(self.model.environment.to_dict(self.env_property_names()))
+        env_dic |= self.model.environment.to_dict(self.env_property_names())
 
         self.environment_properties_list.append(env_dic)
 

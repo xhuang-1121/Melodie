@@ -20,12 +20,10 @@ class JSONBase:
             elif hasattr(v, "to_json"):
                 d[k] = v.to_json()
             elif isinstance(v, dict):
-                new_dict = {}
-                for new_k, new_v in v.items():
-                    if hasattr(new_v, "to_json"):
-                        new_dict[new_k] = new_v.to_json()
-                    else:
-                        new_dict[new_k] = new_v
+                new_dict = {
+                    new_k: new_v.to_json() if hasattr(new_v, "to_json") else new_v
+                    for new_k, new_v in v.items()
+                }
                 d[k] = new_dict
             elif isinstance(v, (list, tuple)):
                 new_list = []

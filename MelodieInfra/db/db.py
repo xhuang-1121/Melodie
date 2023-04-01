@@ -72,7 +72,7 @@ class DBConn:
         )
 
     @classmethod
-    def create_from_existing_db(self, type: str, meta: Dict):
+    def create_from_existing_db(cls, type: str, meta: Dict):
         """
         Create from existing database
 
@@ -106,10 +106,7 @@ class DBConn:
         :param table_name:
         :return:
         """
-        if table_name in cls.table_dtypes:
-            return cls.table_dtypes[table_name]
-        else:
-            return {}
+        return cls.table_dtypes[table_name] if table_name in cls.table_dtypes else {}
 
     def close(self):
         """
@@ -194,7 +191,7 @@ class DBConn:
             condition_phrases.append(f"id_run={id_scenario}")
         try:
             sql = f"select * from {table_name}"
-            if len(condition_phrases) != 0:
+            if condition_phrases:
                 sql += " where " + " and ".join(condition_phrases)
             logger.debug("Querying database: " + sql)
             return pd.read_sql(sql, self.connection)

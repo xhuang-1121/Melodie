@@ -108,11 +108,10 @@ class CalibratorAlgorithmMeta:
     def __setattr__(self, key, value):
         if (not hasattr(self, "_freeze")) or (not self._freeze):
             super().__setattr__(key, value)
+        elif key in self.__dict__:
+            super().__setattr__(key, value)
         else:
-            if key in self.__dict__:
-                super().__setattr__(key, value)
-            else:
-                raise MelodieExceptions.General.NoAttributeError(self, key)
+            raise MelodieExceptions.General.NoAttributeError(self, key)
 
 
 class GACalibratorAlgorithmMeta(CalibratorAlgorithmMeta):
@@ -203,10 +202,10 @@ class GACalibratorAlgorithm:
         :return:
         """
         chromosome_value = self.algorithm.chrom2x(self.algorithm.Chrom)[chromosome_id]
-        env_parameters_dict = {}
-        for i, param_name in enumerate(self.env_param_names):
-            env_parameters_dict[param_name] = chromosome_value[i]
-        return env_parameters_dict
+        return {
+            param_name: chromosome_value[i]
+            for i, param_name in enumerate(self.env_param_names)
+        }
 
     def target_function_to_cache(
             self,
@@ -258,7 +257,7 @@ class GACalibratorAlgorithm:
             data = agent_data[container_name]
             for agent_container_data in data:
                 d = {}
-                d.update(meta_dict)
+                d |= meta_dict
                 d.update(agent_container_data)
 
                 agent_records[container_name].append(d)
@@ -267,7 +266,7 @@ class GACalibratorAlgorithm:
                 pd.DataFrame(agent_records[container_name]),
                 if_exists="append",
             )
-        environment_record.update(meta_dict)
+        environment_record |= meta_dict
         environment_record.update(env_data)
         environment_record.pop("target_function_value")
 
@@ -303,7 +302,7 @@ class GACalibratorAlgorithm:
             for agent_id in self.recorded_agent_properties[container_name]:
                 agent_data = df.loc[df["agent_id"] == agent_id]
                 cov_records = {}
-                cov_records.update(meta_dict)
+                cov_records |= meta_dict
                 cov_records["agent_id"] = agent_id
                 for prop_name in self.recorded_agent_properties[container_name] + [
                     "distance"
@@ -321,7 +320,7 @@ class GACalibratorAlgorithm:
                 if_exists="append",
             )
         env_record = {}
-        env_record.update(meta_dict)
+        env_record |= meta_dict
         for prop_name in (
                 self.env_param_names + self.recorded_env_properties + ["distance"]
         ):

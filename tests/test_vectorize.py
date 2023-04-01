@@ -15,13 +15,13 @@ class NewAgent(Agent):
 def test_1d():
     agents = [NewAgent(i) for i in range(100)]
     v = vectorize(agents, "id")
-    assert tuple(v) == tuple([i for i in range(100)])
-    props = [i for i in range(99, -1, -1)]
+    assert tuple(v) == tuple(list(range(100)))
+    props = list(range(99, -1, -1))
     apply(agents, "id", np.array(props))
     assert tuple(vectorize(agents, "id")) == tuple(props)
 
     v = vectorize(agents, "a")
-    assert tuple(v) == tuple([i * 1.0 for i in range(100)])
+    assert tuple(v) == tuple(i * 1.0 for i in range(100))
     props2 = [i * 1.0 for i in range(99, -1, -1)]
     apply(agents, "a", np.array(props2))
     assert tuple(vectorize(agents, "id")) == tuple(props2)

@@ -22,7 +22,7 @@ class AlgorithmParameters:
 
     def get_agents_parameters_range(self, agent_num) -> List[Tuple[float, float]]:
         parameters = []
-        for agent_id in range(agent_num):
+        for _ in range(agent_num):
             parameters.extend(
                 [(parameter.min, parameter.max) for parameter in self.parameters]
             )
@@ -40,7 +40,7 @@ class AlgorithmParameters:
             if name.endswith("_min")
         }
         assert len(max_values) == len(min_values)
-        for k in max_values.keys():
+        for k in max_values:
             self.parameters.append(
                 AlgorithmParameters.Parameter(k, min_values[k], max_values[k])
             )
@@ -56,10 +56,9 @@ class AlgorithmParameters:
         lb_list: List[float] = []
         for param_name in param_names:
             params = list(filter(lambda p: p.name == param_name, self.parameters))
-            if len(params) == 1:
-                param = params[0]
-                ub_list.append(param.max)
-                lb_list.append(param.min)
-            else:
+            if len(params) != 1:
                 raise Exception(f"Parameters error: {params}, {self.parameters}")
+            param = params[0]
+            ub_list.append(param.max)
+            lb_list.append(param.min)
         return lb_list, ub_list

@@ -72,7 +72,7 @@ def test_agent_manager_type_hinting():
 def test_properties():
     n = random.randint(10, 1000)
     al: AgentList[TestAgent] = AgentList(TestAgent, model)
-    l = [j for j in range(n)]
+    l = list(range(n))
     random.shuffle(l)
     df = pd.DataFrame([{"id": i, "a": random.randint(-100, 100)} for i in l])
     al.set_properties(df)
@@ -129,7 +129,7 @@ def test_properties_with_scenario():
     n = 10
     assert isinstance(model.scenario.id, int)
     for al in [AgentList(TestAgent, model)]:
-        l = [j for j in range(n)]
+        l = list(range(n))
         random.shuffle(l)
         df = pd.DataFrame(
             [{"id": i, "id_scenario": 0, "a": random.randint(-100, 100)} for i in l]

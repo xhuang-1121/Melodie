@@ -47,13 +47,13 @@ class TestScenario(Scenario):
 class DCTestModel(Model):
     def setup(self):
         params_df_1 = pd.DataFrame(
-            [{"a": 1, "b": 1, "productivity": 0} for i in range(10)]
+            [{"a": 1, "b": 1, "productivity": 0} for _ in range(10)]
         )
         params_df_2 = pd.DataFrame(
-            [{"a": 1, "b": 1, "productivity": 0} for i in range(20)]
+            [{"a": 1, "b": 1, "productivity": 0} for _ in range(20)]
         )
         params_df_3 = pd.DataFrame(
-            [{"a": 1.0, "b": 1, "productivity": 0} for i in range(20)]
+            [{"a": 1.0, "b": 1, "productivity": 0} for _ in range(20)]
         )
         self.agent_list1 = self.create_agent_container(TestAgent, 10, params_df_1)
         self.agent_list1.setup_agents(10, params_df_1)
@@ -74,7 +74,7 @@ class Simulator4Test(Simulator):
         return
 
     def generate_scenarios(self) -> List["Scenario"]:
-        scenarios = [TestScenario() for i in range(1)]
+        scenarios = [TestScenario() for _ in range(1)]
         for s in scenarios:
             s.manager = self
         return scenarios

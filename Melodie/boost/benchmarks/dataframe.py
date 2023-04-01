@@ -14,16 +14,9 @@ class MyData:
         s: set = None
         for arg_name, arg_value in kwargs.items():
             indices = self.indices[arg_name][arg_value]
-            if s is None:
-                s = indices
-            else:
-                s = s.intersection(indices)
-        records = []
-        for row in s:
-            records.append(self.records[row])
-        if len(records) == 1:
-            return records[0]
-        return records
+            s = indices if s is None else s.intersection(indices)
+        records = [self.records[row] for row in s]
+        return records[0] if len(records) == 1 else records
 
 
 df = pd.DataFrame([{"a": 1, "b": 1, "id": i} for i in range(10000)])
@@ -35,9 +28,8 @@ M = 100000
 def df_getitem_speed():
     s = 0
     t0 = time.time()
-    for i in range(M):
+    for _ in range(M):
         a = df.loc[9999, "b"]
-        # s += a
     print("df:", time.time() - t0)
 
 
@@ -45,7 +37,7 @@ def mycls_getitem_speed():
     s = 0
     my_data = MyData(df)
     t0 = time.time()
-    for i in range(M):
+    for _ in range(M):
         a = my_data.get_data(id=9999)
         s += a["b"]
     print("mycls", time.time() - t0)
